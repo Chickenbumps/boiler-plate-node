@@ -1,23 +1,40 @@
 const express = require("express");
 const app = express();
 const port = 5000;
+const { User } = require("./models/User");
+const config = require("./config/key");
+const bodyParser = require("body-parser");
+
+// application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// application/json
+app.use(bodyParser.json());
 
 const mongoose = require("mongoose");
 mongoose
-  .connect(
-    "mongodb+srv://chickenbumps:znjcm12@boilerplate.beh98.mongodb.net/boilerplate?retryWrites=true&w=majority",
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-      useFindAndModify: false,
-    }
-  )
+  .connect(config.mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+  })
   .then(() => console.log("MongoDB connected..."))
   .catch((err) => console.log(err));
 
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("Hello World! Its time to start hard work. Can u ready for this?");
+});
+
+// 회원가입
+app.post("/register", (req, res) => {
+  const user = new User(req.body);
+  user.save((err, userInfo) => {
+    if (err) return res.json({ success: false, err });
+    return res.status(200).json({
+      success: true,
+    });
+  });
 });
 
 app.listen(port, () => {
